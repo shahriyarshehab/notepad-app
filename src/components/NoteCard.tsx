@@ -9,14 +9,13 @@ interface NoteCardProps {
     color: Theme;
   };
   onDelete: (id: string) => void;
-  themeColorMap: (isDarkMode: boolean) => Record<Theme, { noteBg: string; textColor: string }>;
-  isDarkMode: boolean;
+  
   onNoteClick: (note: { id: string; content: string; timestamp: number; color: Theme; }) => void;
 }
 
 type Theme = 'default' | 'blue' | 'green' | 'purple' | 'orange' | 'pink' | 'teal';
 
-const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, themeColorMap, isDarkMode, onNoteClick }) => {
+const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onNoteClick }) => {
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -59,13 +58,13 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, themeColorMap, isDa
   });
 
   const noteStyle = {
-    backgroundColor: themeColorMap(isDarkMode)[note.color].noteBg,
+    backgroundColor: `var(--note-bg)`,
     transform: `translateX(${swipeOffset}px)`,
     transition: isSwiping ? 'none' : 'transform 0.3s ease-out',
   };
 
   const textStyle = {
-    color: themeColorMap(isDarkMode)[note.color].textColor,
+    color: `var(--text-color)`,
   };
 
   const formatTimestamp = (timestamp: number) => {
@@ -118,7 +117,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, themeColorMap, isDa
       </div>
 
       {/* The actual note card that moves */}
-      <div {...handlers} className={`note-card shadow-md rounded-lg p-4 relative break-inside-avoid-column ${isDarkMode && note.color === 'default' ? 'border border-gray-300' : ''}`} style={noteStyle}>
+      <div {...handlers} className={`note-card shadow-md rounded-lg p-4 relative break-inside-avoid-column ${ note.color === 'default' ? 'border border-gray-300' : ''}`} style={noteStyle} data-theme={note.color}>
         <textarea
           className="w-full p-0 mb-2 border-none focus:outline-none resize-none overflow-hidden bg-transparent"
           style={textStyle}

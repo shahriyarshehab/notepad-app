@@ -44,6 +44,27 @@ code {
   --button-bg: #6c757d;
   --button-hover-bg: #5a6268;
   --accent-color: #007bff;
+
+  /* Inkr Logo Colors - Light Theme */
+  --inkr-i-color: #FF6B6B; /* Red-Orange */
+  --inkr-n-color: #4ECDC4; /* Teal */
+  --inkr-k-color: #45B7D1; /* Blue */
+  --inkr-r-color: #F7B731; /* Yellow-Orange */
+}
+
+.inkr-i { color: var(--inkr-i-color); }
+.inkr-n { color: var(--inkr-n-color); }
+.inkr-k { color: var(--inkr-k-color); }
+.inkr-r { color: var(--inkr-r-color); }
+
+[data-theme='default'] {
+  --primary-bg: #f0f2f5;
+  --secondary-bg: #ffffff;
+  --text-color: #333333;
+  --note-bg: #ffffff;
+  --button-bg: #6c757d;
+  --button-hover-bg: #5a6268;
+  --accent-color: #007bff;
 }
 
 [data-theme='blue'] {
@@ -106,7 +127,7 @@ code {
   --accent-color: #009688;
 }
 
-/* Apply theme variables */
+
 .min-h-screen {
   background-color: var(--primary-bg);
 }
@@ -127,7 +148,7 @@ code {
   color: var(--text-color);
 }
 
-/* Dark mode variables */
+
 html.dark {
   --primary-bg: #2d3748; /* Slightly lighter dark background */
   --secondary-bg: #4a5568; /* Lighter secondary background */
@@ -136,6 +157,17 @@ html.dark {
   --button-bg: #63b3ed; /* Brighter button color */
   --button-hover-bg: #4299e1; /* Slightly darker hover for contrast */
   --accent-color: #63b3ed;
+
+  /* SVG Logo Colors - Dark Theme */
+  --ink-drop-color: #6A93A6;
+  --inkr-text-color: #FFFFFF;
+  --tagline-color: #FFFFFF;
+
+  /* Inkr Logo Colors - Dark Theme */
+  --inkr-i-color: #FF9AA2; /* Lighter Red-Orange */
+  --inkr-n-color: #8EDCE6; /* Lighter Teal */
+  --inkr-k-color: #87CEFA; /* Lighter Blue */
+  --inkr-r-color: #FFDDAA; /* Lighter Yellow-Orange */
 }
 
 .note-card {
@@ -262,4 +294,96 @@ button:hover {
 
 .note-card {
   will-change: transform;
+}
+
+.font-handwritten {
+  font-family: 'Satisfy', cursive;
+}
+
+@import "https://unpkg.com/open-props/easings.min.css";
+
+:root {
+  --icon-fill: hsl(210 10% 30%);
+  --icon-fill-hover: hsl(210 10% 15%);
+}
+
+[data-theme="dark"] {
+  --icon-fill: hsl(210 10% 70%);
+  --icon-fill-hover: hsl(210 15% 90%);
+}
+
+.sun-and-moon > :is(.moon, .sun, .sun-beams) {
+  transform-origin: center;
+}
+
+.sun-and-moon > :is(.moon, .sun) {
+  fill: var(--icon-fill);
+}
+
+.theme-toggle:is(:hover, :focus-visible) > .sun-and-moon > :is(.moon, .sun) {
+  fill: var(--icon-fill-hover);
+}
+
+.sun-and-moon > .sun-beams {
+  stroke: var(--icon-fill);
+  stroke-width: 2px;
+}
+
+.theme-toggle:is(:hover, :focus-visible) .sun-and-moon > .sun-beams {
+  stroke: var(--icon-fill-hover);
+}
+
+[data-theme="dark"] .sun-and-moon > .sun {
+  transform: scale(1.75);
+}
+
+[data-theme="dark"] .sun-and-moon > .sun-beams {
+  opacity: 0;
+}
+
+[data-theme="dark"] .sun-and-moon > .moon > circle {
+  transform: translateX(-7px);
+}
+
+ @supports (cx: 1) {
+  [data-theme="dark"] .sun-and-moon > .moon > circle {
+    cx: 17;
+    transform: translateX(0);
+  }
+}
+
+ @media (prefers-reduced-motion: no-preference) {
+  .sun-and-moon > .sun {
+    transition: transform .5s var(--ease-elastic-3);
+  }
+
+  .sun-and-moon > .sun-beams {
+    transition: transform .5s var(--ease-elastic-4), opacity .5s var(--ease-3);
+  }
+
+  .sun-and-moon .moon > circle {
+    transition: transform .25s var(--ease-out-5);
+  }
+
+  @supports (cx: 1) {
+    .sun-and-moon .moon > circle {
+      transition: cx .25s var(--ease-out-5);
+    }
+  }
+
+  [data-theme="dark"] .sun-and-moon > .sun {
+    transition-timing-function: var(--ease-3);
+    transition-duration: .25s;
+    transform: scale(1.75);
+  }
+
+  [data-theme="dark"] .sun-and-moon > .sun-beams {
+    transition-duration: .15s;
+    transform: rotateZ(-25deg);
+  }
+
+  [data-theme="dark"] .sun-and-moon > .moon > circle {
+    transition-duration: .5s;
+    transition-delay: .25s;
+  }
 }
