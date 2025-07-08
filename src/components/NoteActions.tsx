@@ -28,12 +28,12 @@ const NoteActions: React.FC<NoteActionsProps> = ({
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md mt-2 dark:bg-gray-800 transition-colors duration-200">
+    <div className="p-4 rounded-lg mt-2">
       <div className="flex justify-center space-x-2 mb-4">
           {themes.map((theme) => (
             <button
               key={theme}
-              className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 ${selectedNoteTheme === theme ? 'border-blue-500 ring-blue-500 ring-opacity-75 shadow-lg' : 'border-transparent hover:shadow-md'}`}
+              className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none ${selectedNoteTheme === theme ? 'ring-2 ring-offset-2 ring-blue-500 shadow-soft-glow' : 'border-transparent hover:shadow-md'}`}
               style={{ backgroundColor: getThemeColor(theme) }}
               onClick={() => setSelectedNoteTheme(theme)}
             >
@@ -45,9 +45,12 @@ const NoteActions: React.FC<NoteActionsProps> = ({
             </button>
           ))}
         </div>
-        <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2">
+        <div className="flex flex-row justify-center space-x-2">
           <button
-            className="w-full sm:w-auto px-4 py-2 text-gray-900 dark:text-white rounded-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+            className="w-full sm:w-auto px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 text-white"
+            style={{ backgroundColor: 'var(--accent-color)', '--tw-ring-color': 'var(--accent-color)' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--button-hover-bg)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-color)'}
             onClick={handleSaveClick}
             disabled={isSaving}
           >
@@ -61,7 +64,8 @@ const NoteActions: React.FC<NoteActionsProps> = ({
             )}
           </button>
           <button
-            className="w-full sm:w-auto px-4 py-2 text-gray-900 dark:text-white rounded-md bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200"
+            className="w-full sm:w-auto px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200 text-white"
+            style={{ backgroundColor: 'var(--clear-button-bg)' }}
             onClick={handleClearAll}
           >
             Clear

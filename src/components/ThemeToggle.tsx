@@ -1,79 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const ThemeToggle: React.FC = () => {
-  const storageKey = 'theme-preference';
+interface ThemeToggleProps {
+  theme: string;
+  onToggle: () => void;
+}
 
-  const getColorPreference = (): 'light' | 'dark' => {
-    const storedPref = localStorage.getItem(storageKey);
-    if (storedPref === 'light' || storedPref === 'dark') {
-      return storedPref;
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  };
-
-  const [theme, setTheme] = useState<'light' | 'dark'>(getColorPreference());
-
-  const reflectPreference = (newTheme: 'light' | 'dark') => {
-    document.documentElement.setAttribute('data-theme', newTheme);
-    const toggle = document.querySelector('#theme-toggle');
-    if (toggle) {
-      toggle.setAttribute('aria-label', newTheme);
-    }
-  };
-
-  const setPreference = (newTheme: 'light' | 'dark') => {
-    localStorage.setItem(storageKey, newTheme);
-    reflectPreference(newTheme);
-  };
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    setPreference(newTheme);
-  };
-
-  useEffect(() => {
-    reflectPreference(theme);
-  }, [theme]);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      const newTheme = e.matches ? 'dark' : 'light';
-      setTheme(newTheme);
-      setPreference(newTheme);
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
+const ThemeToggle: React.FC<ThemeToggleProps> = ({ theme, onToggle }) => {
   return (
     <button
-      className="theme-toggle"
-      id="theme-toggle"
-      title="Toggles light & dark"
-      aria-label={theme}
-      onClick={toggleTheme}
+      onClick={onToggle}
+      className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
     >
-      <svg className="sun-and-moon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24">
-        <mask className="moon" id="moon-mask">
-          <rect x="0" y="0" width="100%" height="100%" fill="white" />
-          <circle cx="24" cy="10" r="6" fill="black" />
-        </mask>
-        <circle className="sun" cx="12" cy="12" r="6" mask="url(#moon-mask)" fill="currentColor" />
-        <g className="sun-beams" stroke="currentColor">
-          <line x1="12" y1="1" x2="12" y2="3" />
-          <line x1="12" y1="21" x2="12" y2="23" />
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-          <line x1="1" y1="12" x2="3" y2="12" />
-          <line x1="21" y1="12" x2="23" y2="12" />
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-        </g>
-      </svg>
+      {theme === 'light' ? (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      ) : (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      )}
     </button>
   );
 };

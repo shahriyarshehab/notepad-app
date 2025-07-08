@@ -5,7 +5,14 @@ module.exports = {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'Poppins', 'sans-serif'],
+      },
+      boxShadow: {
+        'soft-glow': '0 0 15px rgba(72, 187, 255, 0.5)',
+      },
+    },
   },
   plugins: [],
 };

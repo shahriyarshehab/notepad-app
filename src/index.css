@@ -4,17 +4,60 @@
 
 body {
   margin: 0;
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f0f2f5; /* A slightly cooler light gray */
+  -moz-osx-osx-smoothing: grayscale;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.4s ease-out forwards;
+}
+
+@keyframes delete-card {
+  to {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+.animate-delete-card {
+  animation: delete-card 0.3s ease-out forwards;
 }
 
 /* Custom styles for masonry layout */
@@ -44,12 +87,37 @@ code {
   --button-bg: #6c757d;
   --button-hover-bg: #5a6268;
   --accent-color: #007bff;
+  --timestamp-color: #6b7280; /* Default timestamp color */
+  --placeholder-color: #9ca3af; /* Default placeholder color */
 
   /* Inkr Logo Colors - Light Theme */
   --inkr-i-color: #FF6B6B; /* Red-Orange */
   --inkr-n-color: #4ECDC4; /* Teal */
   --inkr-k-color: #45B7D1; /* Blue */
   --inkr-r-color: #F7B731; /* Yellow-Orange */
+}
+
+[data-theme='dark'] {
+  --primary-bg: #2d3748;
+  --secondary-bg: #4a5568;
+  --text-color: #e2e8f0;
+  --note-bg: var(--primary-bg);
+  --button-bg: #63b3ed;
+  --button-hover-bg: #4299e1;
+  --accent-color: #63b3ed;
+  --timestamp-color: #9da6b3;
+  --placeholder-color: #6b7280;
+
+  /* SVG Logo Colors - Dark Theme */
+  --ink-drop-color: #6A93A6;
+  --inkr-text-color: #FFFFFF;
+  --tagline-color: #FFFFFF;
+
+  /* Inkr Logo Colors - Dark Theme */
+  --inkr-i-color: #FF9AA2;
+  --inkr-n-color: #8EDCE6;
+  --inkr-k-color: #87CEFA;
+  --inkr-r-color: #FFDDAA;
 }
 
 .inkr-i { color: var(--inkr-i-color); }
@@ -65,6 +133,20 @@ code {
   --button-bg: #6c757d;
   --button-hover-bg: #5a6268;
   --accent-color: #007bff;
+  --clear-button-bg: #dc3545;
+  --clear-button-hover-bg: #c82333;
+}
+
+[data-theme='default'][data-theme-mode='dark'] {
+  --primary-bg: #2d3748;
+  --secondary-bg: #4a5568;
+  --text-color: #e2e8f0;
+  --note-bg: #3a475a; /* Darker default note background */
+  --button-bg: #63b3ed;
+  --button-hover-bg: #4299e1;
+  --accent-color: #63b3ed;
+  --clear-button-bg: #ef4444;
+  --clear-button-hover-bg: #dc2626;
 }
 
 [data-theme='blue'] {
@@ -75,6 +157,20 @@ code {
   --button-bg: #007bff;
   --button-hover-bg: #0056b3;
   --accent-color: #007bff;
+  --clear-button-bg: #dc3545;
+  --clear-button-hover-bg: #c82333;
+}
+
+[data-theme='blue'][data-theme-mode='dark'] {
+  --primary-bg: #1a2b3a;
+  --secondary-bg: #2a4b6a;
+  --text-color: #a7d9ff;
+  --note-bg: #2a4b6a; /* Darker blue note background */
+  --button-bg: #007bff;
+  --button-hover-bg: #0056b3;
+  --accent-color: #007bff;
+  --clear-button-bg: #ef4444;
+  --clear-button-hover-bg: #dc2626;
 }
 
 [data-theme='green'] {
@@ -85,6 +181,20 @@ code {
   --button-bg: #28a745;
   --button-hover-bg: #218838;
   --accent-color: #28a745;
+  --clear-button-bg: #dc3545;
+  --clear-button-hover-bg: #c82333;
+}
+
+[data-theme='green'][data-theme-mode='dark'] {
+  --primary-bg: #1a3a1a;
+  --secondary-bg: #2a5a2a;
+  --text-color: #a7ffa7;
+  --note-bg: #2a5a2a; /* Darker green note background */
+  --button-bg: #28a745;
+  --button-hover-bg: #218838;
+  --accent-color: #28a745;
+  --clear-button-bg: #ef4444;
+  --clear-button-hover-bg: #dc2626;
 }
 
 [data-theme='purple'] {
@@ -95,6 +205,20 @@ code {
   --button-bg: #6f42c1;
   --button-hover-bg: #563d7c;
   --accent-color: #6f42c1;
+  --clear-button-bg: #dc3545;
+  --clear-button-hover-bg: #c82333;
+}
+
+[data-theme='purple'][data-theme-mode='dark'] {
+  --primary-bg: #2a1a3a;
+  --secondary-bg: #4a2a5a;
+  --text-color: #d9a7ff;
+  --note-bg: #4a2a5a; /* Darker purple note background */
+  --button-bg: #6f42c1;
+  --button-hover-bg: #563d7c;
+  --accent-color: #6f42c1;
+  --clear-button-bg: #ef4444;
+  --clear-button-hover-bg: #dc2626;
 }
 
 [data-theme='orange'] {
@@ -105,6 +229,20 @@ code {
   --button-bg: #ff9800;
   --button-hover-bg: #fb8c00;
   --accent-color: #ff9800;
+  --clear-button-bg: #dc3545;
+  --clear-button-hover-bg: #c82333;
+}
+
+[data-theme='orange'][data-theme-mode='dark'] {
+  --primary-bg: #3a2b1a;
+  --secondary-bg: #5a4b2a;
+  --text-color: #ffd9a7;
+  --note-bg: #5a4b2a; /* Darker orange note background */
+  --button-bg: #ff9800;
+  --button-hover-bg: #fb8c00;
+  --accent-color: #ff9800;
+  --clear-button-bg: #ef4444;
+  --clear-button-hover-bg: #dc2626;
 }
 
 [data-theme='pink'] {
@@ -115,6 +253,20 @@ code {
   --button-bg: #e91e63;
   --button-hover-bg: #d81b60;
   --accent-color: #e91e63;
+  --clear-button-bg: #dc3545;
+  --clear-button-hover-bg: #c82333;
+}
+
+[data-theme='pink'][data-theme-mode='dark'] {
+  --primary-bg: #3a1a2b;
+  --secondary-bg: #5a2a4b;
+  --text-color: #ffd9e6;
+  --note-bg: #5a2a4b; /* Darker pink note background */
+  --button-bg: #e91e63;
+  --button-hover-bg: #d81b60;
+  --accent-color: #e91e63;
+  --clear-button-bg: #ef4444;
+  --clear-button-hover-bg: #dc2626;
 }
 
 [data-theme='teal'] {
@@ -125,6 +277,20 @@ code {
   --button-bg: #009688;
   --button-hover-bg: #00897b;
   --accent-color: #009688;
+  --clear-button-bg: #dc3545;
+  --clear-button-hover-bg: #c82333;
+}
+
+[data-theme='teal'][data-theme-mode='dark'] {
+  --primary-bg: #1a3a3a;
+  --secondary-bg: #2a5a5a;
+  --text-color: #a7ffff;
+  --note-bg: #2a5a5a; /* Darker teal note background */
+  --button-bg: #009688;
+  --button-hover-bg: #00897b;
+  --accent-color: #009688;
+  --clear-button-bg: #ef4444;
+  --clear-button-hover-bg: #dc2626;
 }
 
 
@@ -149,7 +315,7 @@ code {
 }
 
 
-html.dark {
+[data-theme='dark'] {
   --primary-bg: #2d3748; /* Slightly lighter dark background */
   --secondary-bg: #4a5568; /* Lighter secondary background */
   --text-color: #e2e8f0;
@@ -157,6 +323,8 @@ html.dark {
   --button-bg: #63b3ed; /* Brighter button color */
   --button-hover-bg: #4299e1; /* Slightly darker hover for contrast */
   --accent-color: #63b3ed;
+  --timestamp-color: #9da6b3; /* Dark mode timestamp color */
+  --placeholder-color: #6b7280; /* Dark mode placeholder color */
 
   /* SVG Logo Colors - Dark Theme */
   --ink-drop-color: #6A93A6;
@@ -168,12 +336,26 @@ html.dark {
   --inkr-n-color: #8EDCE6; /* Lighter Teal */
   --inkr-k-color: #87CEFA; /* Lighter Blue */
   --inkr-r-color: #FFDDAA; /* Lighter Yellow-Orange */
+
+  /* Motorola Gradient Colors - Dark Theme */
+  --moto-color-1: #a7d9ff; /* Lighter blue for dark mode */
+  --moto-color-2: #b3e0ff; /* Lighter blue for dark mode */
+  --moto-color-3: #c0e7ff;
+  --moto-color-4: #d0efff;
+  --moto-color-5: #e0f5ff;
+  --moto-color-6: #f0fbff;
+  --moto-color-7: #ffffff;
 }
 
 .note-card {
   background-color: var(--note-bg);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  color: var(--text-color);
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Added subtle shadow */
+}
+
+.note-card textarea::placeholder {
+  color: var(--placeholder-color);
 }
 
 .note-card:hover {
@@ -183,8 +365,8 @@ html.dark {
 
 /* Button styles */
 button {
-  background-color: var(--button-bg);
-  transition: background-color 0.2s ease-in-out;
+  /* background-color: var(--button-bg); */
+  /* transition: background-color 0.2s ease-in-out; */
 }
 
 button:hover {
@@ -386,4 +568,67 @@ button:hover {
     transition-duration: .5s;
     transition-delay: .25s;
   }
+}
+
+/* Snackbar styles */
+.snackbar {
+  visibility: hidden; /* Hidden by default. */
+  min-width: 250px; /* Set a default minimum width */
+  margin-left: -125px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 8px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 50%; /* Center the snackbar */
+  bottom: 30px; /* 30px from the bottom */
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.snackbar.show {
+  visibility: visible; /* Show the snackbar */
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+.snackbar-button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.snackbar-button:hover {
+  background-color: var(--button-hover-bg);
+}
+
+/* Animations for Snackbar */
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
 }
