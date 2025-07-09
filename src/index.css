@@ -95,6 +95,15 @@ code {
   --inkr-n-color: #4ECDC4; /* Teal */
   --inkr-k-color: #45B7D1; /* Blue */
   --inkr-r-color: #F7B731; /* Yellow-Orange */
+
+  /* Motorola Gradient Colors - Light Theme */
+  --moto-color-1: #FF6B6B; /* Red-Orange */
+  --moto-color-2: #4ECDC4; /* Teal */
+  --moto-color-3: #45B7D1; /* Blue */
+  --moto-color-4: #F7B731; /* Yellow-Orange */
+  --moto-color-5: #A1C9F7; /* Light Blue */
+  --moto-color-6: #C9A1F7; /* Light Purple */
+  --moto-color-7: #F7A1C9; /* Light Pink */
 }
 
 [data-theme='dark'] {
@@ -338,13 +347,13 @@ code {
   --inkr-r-color: #FFDDAA; /* Lighter Yellow-Orange */
 
   /* Motorola Gradient Colors - Dark Theme */
-  --moto-color-1: #a7d9ff; /* Lighter blue for dark mode */
-  --moto-color-2: #b3e0ff; /* Lighter blue for dark mode */
-  --moto-color-3: #c0e7ff;
-  --moto-color-4: #d0efff;
-  --moto-color-5: #e0f5ff;
-  --moto-color-6: #f0fbff;
-  --moto-color-7: #ffffff;
+  --moto-color-1: #FF9AA2; /* Lighter Red-Orange */
+  --moto-color-2: #8EDCE6; /* Lighter Teal */
+  --moto-color-3: #87CEFA; /* Lighter Blue */
+  --moto-color-4: #FFDDAA; /* Lighter Yellow-Orange */
+  --moto-color-5: #B2D9FF; /* Softer Light Blue */
+  --moto-color-6: #D9B2FF; /* Softer Light Purple */
+  --moto-color-7: #FFB2D9; /* Softer Light Pink */
 }
 
 .note-card {
@@ -352,6 +361,10 @@ code {
   color: var(--text-color);
   transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Added subtle shadow */
+}
+
+.font-handwritten {
+  font-family: 'Source Code Pro', monospace;
 }
 
 .note-card textarea::placeholder {
@@ -479,7 +492,7 @@ button:hover {
 }
 
 .font-handwritten {
-  font-family: 'Satisfy', cursive;
+  font-family: 'Source Code Pro', monospace;
 }
 
 @import "https://unpkg.com/open-props/easings.min.css";

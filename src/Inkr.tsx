@@ -3,13 +3,19 @@ import NoteCard from './components/NoteCard';
 import NoteActions from './components/NoteActions';
 import EditNoteModal from './components/EditNoteModal';
 
+import { HiSortAscending, HiSortDescending, HiHeart } from 'react-icons/hi';
+import { FaThumbtack } from 'react-icons/fa';
+
 interface Note {
   id: string;
   title: string;
   content: string;
   timestamp: number;
   color: Theme;
-  animate?: boolean;
+  isPinned: boolean;
+  isFavorite: boolean;
+  isTrashed: false,
+        animate: true,
 }
 
 type Theme = 'default' | 'blue' | 'green' | 'purple' | 'orange' | 'pink' | 'teal';
@@ -29,7 +35,13 @@ const Inkr: React.FC<{ theme: string }> = ({ theme }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);
   const [selectedNoteIdForSwipe, setSelectedNoteIdForSwipe] = useState<string | null>(null); // New state for swipe selection
+  
   const [showSearchInput, setShowSearchInput] = useState<boolean>(false);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest'); // 'newest' or 'oldest'
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
+  const [showPinnedOnly, setShowPinnedOnly] = useState<boolean>(false);
+  const [actionMessage, setActionMessage] = useState<string>('');
+  const [currentMode, setCurrentMode] = useState<number>(0); // 0: All Newest, 1: All Oldest, 2: Fav Newest, 3: Pinned Newest
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -38,6 +50,15 @@ const Inkr: React.FC<{ theme: string }> = ({ theme }) => {
       setNotes(JSON.parse(savedNotes));
     }
   }, []);
+
+  useEffect(() => {
+    if (actionMessage) {
+      const timer = setTimeout(() => {
+        setActionMessage('');
+      }, 1000); // Message disappears after 1 second
+      return () => clearTimeout(timer);
+    }
+  }, [actionMessage]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -70,7 +91,10 @@ const Inkr: React.FC<{ theme: string }> = ({ theme }) => {
         title: currentTitle, // Use currentTitle here
         content: currentNote,
         timestamp: Date.now(),
-        color: 'default',
+        color: selectedNoteTheme,
+        isPinned: false,
+        isFavorite: false,
+        isTrashed: false,
         animate: true,
       };
       updatedNotes = [newNote, ...notes];
@@ -110,31 +134,114 @@ const Inkr: React.FC<{ theme: string }> = ({ theme }) => {
   };
 
   const handleDeleteNote = (id: string) => {
-    const deletedNoteIndex = notes.findIndex((note) => note.id === id);
-    const deletedNote = notes[deletedNoteIndex];
-    const updatedNotes = notes.filter((note) => note.id !== id);
+    const updatedNotes = notes.map((note) =>
+      note.id === id ? { ...note, isTrashed: true } : note
+    );
     setNotes(updatedNotes);
     updateLocalStorage(updatedNotes);
-    setLastDeletedNote(deletedNote);
-    setLastDeletedNoteIndex(deletedNoteIndex);
-    setSnackbarMessage('Note deleted.');
+    setSnackbarMessage('Note moved to trash.');
     setShowSnackbar(true);
     setTimeout(() => {
       setShowSnackbar(false);
-      setLastDeletedNote(null);
-      setLastDeletedNoteIndex(null);
     }, 5000);
   };
 
+  const handlePermanentDelete = (id: string) => {
+    const updatedNotes = notes.filter((note) => note.id !== id);
+    setNotes(updatedNotes);
+    updateLocalStorage(updatedNotes);
+  };
+
   const handleUndoDelete = () => {
-    if (lastDeletedNote && lastDeletedNoteIndex !== null) {
-      const updatedNotes = [...notes];
-      updatedNotes.splice(lastDeletedNoteIndex, 0, lastDeletedNote);
+    if (lastDeletedNote) {
+      const updatedNotes = notes.map((note) =>
+        note.id === lastDeletedNote.id ? { ...note, isTrashed: false } : note
+      );
       setNotes(updatedNotes);
       updateLocalStorage(updatedNotes);
       setShowSnackbar(false);
       setLastDeletedNote(null);
-      setLastDeletedNoteIndex(null);
+    }
+  };
+
+  const handleTogglePin = (id: string) => {
+    const updatedNotes = notes.map((note) =>
+      note.id === id ? { ...note, isPinned: !note.isPinned } : note
+    );
+    setNotes(updatedNotes);
+    updateLocalStorage(updatedNotes);
+  };
+
+  const handleToggleFavorite = (id: string) => {
+    const updatedNotes = notes.map((note) =>
+      note.id === id ? { ...note, isFavorite: !note.isFavorite } : note
+    );
+    setNotes(updatedNotes);
+    updateLocalStorage(updatedNotes);
+  };
+
+  const applyFormatting = (prefix: string, suffix: string) => {
+    if (textareaRef.current) {
+      const textarea = textareaRef.current;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+
+      let newText = text;
+      let newStart = start;
+      let newEnd = end;
+
+      const selectedText = text.substring(start, end);
+
+      // Check if formatting already exists and toggle it off
+      if (selectedText.startsWith(prefix) && selectedText.endsWith(suffix)) {
+        newText = text.substring(0, start) + selectedText.substring(prefix.length, selectedText.length - suffix.length) + text.substring(end);
+        newStart = start;
+        newEnd = end - prefix.length - suffix.length;
+      } else {
+        // Apply formatting
+        newText = text.substring(0, start) + prefix + selectedText + suffix + text.substring(end);
+        newStart = start + prefix.length;
+        newEnd = end + prefix.length;
+      }
+
+      setCurrentNote(newText);
+
+      // Manually set selection after state update
+      // This needs to be done after the DOM updates, which React handles internally
+      // for controlled components. A direct assignment after setCurrentNote often works.
+      textarea.selectionStart = newStart;
+      textarea.selectionEnd = newEnd;
+    }
+  };
+
+  const handleBold = () => {
+    applyFormatting('**', '**');
+  };
+
+  const handleItalic = () => {
+    applyFormatting('*', '*');
+  };
+
+  const handlePaste = async () => {
+    if (textareaRef.current) {
+      try {
+        const text = await navigator.clipboard.readText();
+        const textarea = textareaRef.current;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const newText = textarea.value.substring(0, start) + text + textarea.value.substring(end);
+        setCurrentNote(newText);
+
+        // Move cursor to the end of the pasted text
+        setTimeout(() => {
+          textarea.selectionStart = start + text.length;
+          textarea.selectionEnd = start + text.length;
+        }, 0);
+      } catch (err) {
+        console.error('Failed to read clipboard contents: ', err);
+        setActionMessage('Failed to paste from clipboard.');
+      }
     }
   };
 
@@ -151,9 +258,40 @@ const Inkr: React.FC<{ theme: string }> = ({ theme }) => {
     }
   };
 
-  const handleSortNotes = () => {
-    const sortedNotes = [...notes].sort((a, b) => b.timestamp - a.timestamp);
-    setNotes(sortedNotes);
+  
+
+  const handleToggleSortFilterMode = () => {
+    setCurrentMode((prevMode) => {
+      const nextMode = (prevMode + 1) % 4; // Cycle through 0, 1, 2, 3
+      let message = '';
+
+      // Reset all filters first
+      setShowFavoritesOnly(false);
+      setShowPinnedOnly(false);
+
+      switch (nextMode) {
+        case 0:
+          setSortOrder('newest');
+          message = 'Showing: All Notes (Newest First)';
+          break;
+        case 1:
+          setSortOrder('oldest');
+          message = 'Showing: All Notes (Oldest First)';
+          break;
+        case 2:
+          setShowFavoritesOnly(true);
+          setSortOrder('newest');
+          message = 'Showing: Favorites Only (Newest First)';
+          break;
+        case 3:
+          setShowPinnedOnly(true);
+          setSortOrder('newest');
+          message = 'Showing: Pinned Only (Newest First)';
+          break;
+      }
+      setActionMessage(message);
+      return nextMode;
+    });
   };
 
   return (
@@ -212,6 +350,9 @@ const Inkr: React.FC<{ theme: string }> = ({ theme }) => {
             setSelectedNoteTheme={setSelectedNoteTheme}
             handleSave={handleSave}
             handleClearAll={handleClearAll}
+            handleBold={handleBold}
+            handleItalic={handleItalic}
+            handlePaste={handlePaste}
           />
         )}
       </div>
@@ -236,38 +377,106 @@ const Inkr: React.FC<{ theme: string }> = ({ theme }) => {
           />
         )}
         <button
-          onClick={handleSortNotes}
-          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600 transition-colors duration-200 ml-2"
-          aria-label="Sort Notes"
+          onClick={handleToggleSortFilterMode}
+          className={`p-2 rounded-full ${showFavoritesOnly ? 'bg-yellow-400 text-gray-900' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white'} focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600 transition-colors duration-200 ml-2`}
+          aria-label="Toggle Sort and Filter"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h13M3 8h9m-9 4h16m-16 4h12m-12 4h16" />
-          </svg>
+          {/* Icon changes based on currentMode */}
+          {currentMode === 0 && (
+            <HiSortDescending className="h-6 w-6" />
+          )}
+          {currentMode === 1 && (
+            <HiSortAscending className="h-6 w-6" />
+          )}
+          {currentMode === 2 && (
+            <HiHeart className="h-6 w-6" />
+          )}
+          {currentMode === 3 && (
+            <FaThumbtack className="h-6 w-6" />
+          )}
         </button>
       </div>
       <div className="w-full max-w-4xl flex items-center justify-center mb-4">
         <p className="text-xs text-gray-400 dark:text-gray-600">Swipe left to delete, right to edit.</p>
       </div>
-      <div className="w-full max-w-4xl columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
-        {notes.length === 0 ? (
-          <p className="text-center text-gray-500 dark:text-gray-400">No notes saved yet.</p>
-        ) : (
-          notes
-            .filter(note => note.content.toLowerCase().includes(searchQuery.toLowerCase()))
-            .map((note, index) => (
-              <div key={note.id} className={`animate-fade-in-up ${note.animate ? 'animate-bounce-in' : ''}`}>
-                <NoteCard
-                  note={note}
-                  onDelete={handleDeleteNote}
-                  onNoteClick={startEditingNote}
-                  themeMode={theme}
-                  selectedForSwipe={selectedNoteIdForSwipe === note.id}
-                  onSelectForSwipe={handleSelectNoteForSwipe}
-                />
-              </div>
-            ))
-        )}
-      </div>
+      {actionMessage && (
+        <div className="w-full max-w-4xl flex justify-center mb-4">
+          <p className="text-sm text-gray-600 dark:text-gray-300 animate-fade-in-down">{actionMessage}</p>
+        </div>
+      )}
+      {notes.length === 0 ? (
+        <p className="text-center text-gray-500 dark:text-gray-400">No notes saved yet.</p>
+      ) : (
+        <>
+          {(() => {
+            const filteredAndSortedNotes = notes
+              .filter(note => !note.isTrashed && (!showFavoritesOnly || note.isFavorite) && (!showPinnedOnly || note.isPinned))
+              .filter(note => note.content.toLowerCase().includes(searchQuery.toLowerCase()))
+              .sort((a, b) => {
+                if (sortOrder === 'newest') {
+                  return b.timestamp - a.timestamp;
+                } else {
+                  return a.timestamp - b.timestamp;
+                }
+              });
+
+            const pinnedNotes = filteredAndSortedNotes.filter(note => note.isPinned);
+            const otherNotes = filteredAndSortedNotes.filter(note => !note.isPinned);
+
+            return (
+              <>
+                {pinnedNotes.length > 0 && (
+                  <div className="w-full max-w-4xl mb-4">
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Pinned</h2>
+                    <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
+                      {pinnedNotes.map((note) => (
+                        <div key={note.id} className={`animate-fade-in-up ${note.animate ? 'animate-bounce-in' : ''}`}>
+                          <NoteCard
+                            note={note}
+                            onDelete={handleDeleteNote}
+                            onNoteClick={startEditingNote}
+                            themeMode={theme}
+                            selectedForSwipe={selectedNoteIdForSwipe === note.id}
+                            onSelectForSwipe={handleSelectNoteForSwipe}
+                            onTogglePin={handleTogglePin}
+                            onToggleFavorite={handleToggleFavorite}
+                            onPermanentDelete={handlePermanentDelete}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {otherNotes.length > 0 && (
+                  <div className="w-full max-w-4xl">
+                    {pinnedNotes.length > 0 && (
+                      <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2 mt-4">Others</h2>
+                    )}
+                    <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
+                      {otherNotes.map((note) => (
+                        <div key={note.id} className={`animate-fade-in-up ${note.animate ? 'animate-bounce-in' : ''}`}>
+                          <NoteCard
+                            note={note}
+                            onDelete={handleDeleteNote}
+                            onNoteClick={startEditingNote}
+                            themeMode={theme}
+                            selectedForSwipe={selectedNoteIdForSwipe === note.id}
+                            onSelectForSwipe={handleSelectNoteForSwipe}
+                            onTogglePin={handleTogglePin}
+                            onToggleFavorite={handleToggleFavorite}
+                            onPermanentDelete={handlePermanentDelete}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
+        </>
+      )}
 
       {showSnackbar && (
         <div className="fixed bottom-4 right-4 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-lg flex items-center animate-fade-in-up">

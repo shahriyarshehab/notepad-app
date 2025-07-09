@@ -1,5 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
+import { FaThumbtack } from 'react-icons/fa';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 interface NoteCardProps {
   note: {
@@ -8,17 +12,55 @@ interface NoteCardProps {
     content: string;
     timestamp: number;
     color: Theme;
+    isPinned: boolean;
+    isFavorite: boolean;
+    isTrashed: boolean;
   };
   onDelete: (id: string) => void;
   onNoteClick: (note: { id: string; title: string; content: string; timestamp: number; color: Theme; }) => void;
   themeMode: string;
   selectedForSwipe: boolean;
   onSelectForSwipe: (noteId: string) => void;
+  onTogglePin: (id: string) => void;
+  onToggleFavorite: (id: string) => void;
 }
 
 type Theme = 'default' | 'blue' | 'green' | 'purple' | 'orange' | 'pink' | 'teal';
 
-const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onNoteClick, themeMode, selectedForSwipe, onSelectForSwipe }) => {
+const processCustomColors = (text: string): string => {
+  const colorMap: { [key: string]: string } = {
+    r: 'red',
+    b: 'blue',
+    g: 'green',
+    y: 'yellow',
+    p: 'purple',
+    k: 'pink',
+    i: 'indigo',
+    gr: 'gray',
+    bl: 'black',
+    w: 'white',
+  };
+
+  return text.replace(/\[c-([a-z]+)\](.*?)\[c\]/g, (match, colorCode, content) => {
+    const colorName = colorMap[colorCode] || 'black'; // Default to black if color code not found
+    return `<span class="text-${colorName}-500">${content}</span>`;
+  });
+};
+
+const getTextColorClass = (theme: Theme, themeMode: string): string => {
+  const colorMap: { [key: string]: { light: string; dark: string } } = {
+    blue: { light: 'text-blue-800', dark: 'text-blue-200' },
+    green: { light: 'text-green-800', dark: 'text-green-200' },
+    purple: { light: 'text-purple-800', dark: 'text-purple-200' },
+    orange: { light: 'text-orange-800', dark: 'text-orange-200' },
+    pink: { light: 'text-pink-800', dark: 'text-pink-200' },
+    teal: { light: 'text-teal-800', dark: 'text-teal-200' },
+    default: { light: 'text-gray-800', dark: 'text-gray-200' },
+  };
+  return colorMap[theme][themeMode] || colorMap[theme].light; // Fallback to light if themeMode is unexpected
+};
+
+const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onNoteClick, themeMode, selectedForSwipe, onSelectForSwipe, onTogglePin, onToggleFavorite }) => {
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -126,23 +168,49 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onNoteClick, themeM
       </div>
 
       {/* The actual note card that moves */}
-      <div {...(selectedForSwipe ? swipeHandlers : {})} className={`note-card shadow-md rounded-xl p-4 relative break-inside-avoid-column ${selectedForSwipe ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`} style={noteStyle} data-theme={note.color} data-theme-mode={themeMode}>
+      <div {...swipeHandlers} className={`note-card shadow-md rounded-xl p-4 relative break-inside-avoid-column ${selectedForSwipe ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`} style={noteStyle} data-theme={note.color} data-theme-mode={themeMode}>
         {note.title && <h3 className="text-lg font-bold mb-1">{note.title}</h3>}
-        <textarea
-          className="w-full p-0 mb-2 border-none focus:outline-none resize-none overflow-hidden bg-transparent"
-          value={note.content}
-          rows={1}
-          onInput={(e) => {
-            const target = e.currentTarget;
-            target.style.height = 'auto';
-            target.style.height = `${target.scrollHeight}px`;
-          }}
-          readOnly={true}
+        <div
+          className={`w-full p-0 mb-2 border-none focus:outline-none resize-none overflow-hidden bg-transparent ${getTextColorClass(note.color, themeMode)}`}
           onClick={handleClick}
-        />
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-          {formatTimestamp(note.timestamp)}
-        </p>
+        >
+          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{processCustomColors(note.content)}</ReactMarkdown>
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {formatTimestamp(note.timestamp)}
+          </p>
+          <div className="flex space-x-2">
+            <button
+              onClick={(e) => { e.stopPropagation(); onTogglePin(note.id); }}
+              className={`p-1 rounded-full ${note.isPinned ? 'text-yellow-500' : 'text-gray-400'} hover:text-yellow-500 transition-colors duration-200`}
+              aria-label="Toggle Pin"
+            >
+              <FaThumbtack className="h-5 w-5" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite(note.id); }}
+              className={`p-1 rounded-full ${note.isFavorite ? 'text-red-500' : 'text-gray-400'} hover:text-red-500 transition-colors duration-200`}
+              aria-label="Toggle Favorite"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        {/* Trash icon at bottom right */}
+        {note.isTrashed && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(note.id); }}
+            className="absolute bottom-2 right-2 p-1 rounded-full text-gray-400 hover:text-red-500 transition-colors duration-200"
+            aria-label="Delete Permanently"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 11-2 0v6a1 1 0 112 0V8z" clipRule="evenodd" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );

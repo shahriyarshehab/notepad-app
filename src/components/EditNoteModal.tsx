@@ -14,6 +14,39 @@ interface EditNoteModalProps {
 
 type Theme = 'default' | 'blue' | 'green' | 'purple' | 'orange' | 'pink' | 'teal';
 
+const getTextColorClass = (theme: Theme, themeMode: string): string => {
+  const colorMap: { [key: string]: { light: string; dark: string } } = {
+    blue: { light: 'text-blue-800', dark: 'text-blue-200' },
+    green: { light: 'text-green-800', dark: 'text-green-200' },
+    purple: { light: 'text-purple-800', dark: 'text-purple-200' },
+    orange: { light: 'text-orange-800', dark: 'text-orange-200' },
+    pink: { light: 'text-pink-800', dark: 'text-pink-200' },
+    teal: { light: 'text-teal-800', dark: 'text-teal-200' },
+    default: { light: 'text-gray-800', dark: 'text-gray-200' },
+  };
+  return colorMap[theme][themeMode] || colorMap[theme].light; // Fallback to light if themeMode is unexpected
+};
+
+const getRingColorClass = (theme: Theme): string => {
+  switch (theme) {
+    case 'blue':
+      return 'ring-blue-700';
+    case 'green':
+      return 'ring-green-700';
+    case 'purple':
+      return 'ring-purple-700';
+    case 'orange':
+      return 'ring-orange-700';
+    case 'pink':
+      return 'ring-pink-700';
+    case 'teal':
+      return 'ring-teal-700';
+    case 'default':
+    default:
+      return 'ring-gray-700';
+  }
+};
+
 const EditNoteModal: React.FC<EditNoteModalProps> = ({ isOpen, onClose, note, onSave }) => {
   const [editedTitle, setEditedTitle] = useState(note.title);
   const [editedContent, setEditedContent] = useState(note.content);
@@ -59,7 +92,7 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({ isOpen, onClose, note, on
           onChange={(e) => setEditedTitle(e.target.value)}
         />
         <textarea
-          className="w-full p-2 mb-4 h-48 border-2 border-gray-300 dark:border-gray-700 rounded-md bg-transparent focus:outline-none resize-none text-gray-900 dark:text-gray-100"
+          className={`w-full p-2 mb-4 h-48 border-2 border-gray-300 dark:border-gray-700 rounded-md bg-transparent focus:outline-none resize-none ${getTextColorClass(selectedColor, document.documentElement.classList.contains('dark') ? 'dark' : 'light')}`}
           placeholder="Take a note..."
           value={editedContent}
           onChange={(e) => setEditedContent(e.target.value)}
@@ -68,7 +101,7 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({ isOpen, onClose, note, on
           {themes.map((themeOption) => (
             <button
               key={themeOption}
-              className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none ${selectedColor === themeOption ? 'ring-2 ring-offset-2 ring-blue-500 shadow-soft-glow' : 'border-transparent hover:shadow-md'}`}
+              className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none ${selectedColor === themeOption ? `ring-4 ring-offset-2 ${getRingColorClass(themeOption)} shadow-soft-glow` : 'border-transparent hover:shadow-md'}`}
               style={{ backgroundColor: getThemeColor(themeOption) }}
               onClick={() => setSelectedColor(themeOption)}
             >
